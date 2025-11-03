@@ -1,0 +1,130 @@
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.*;
+import java.util.Scanner;
+
+public class CircleDrawing extends JPanel {
+    private int xc, yc, r, style, choice;
+
+    public CircleDrawing(int xc, int yc, int r, int style, int choice) {
+        this.xc = xc;
+        this.yc = yc;
+        this.r = r;
+        this.style = style;
+        this.choice = choice;
+    }
+
+    private void drawStyledPixel(Graphics g, int x, int y, int count) {
+        if (style == 1) // Solid
+            g.drawLine(xc + x, yc + y, xc + x, yc + y);
+        else if (style == 2 && count % 3 == 0) // Dotted
+            g.drawLine(xc + x, yc + y, xc + x, yc + y);
+        else if (style == 3 && count % 10 < 5) // Dashed
+            g.drawLine(xc + x, yc + y, xc + x, yc + y);
+    }
+
+    private void drawDDACircle(Graphics g) {
+        float step = 1.0f / r;
+        float theta = 0;
+        int count = 0;
+
+        while (theta <= 2 * Math.PI) {
+            int x = Math.round((float)(r * Math.cos(theta)));
+            int y = Math.round((float)(r * Math.sin(theta)));
+            drawStyledPixel(g, x, y, count++);
+            theta += step;
+        }
+    }
+
+    private void drawBresenhamCircle(Graphics g) {
+        int x = 0, y = r;
+        int d = 3 - 2 * r;
+        int count = 0;
+
+        while (x <= y) {
+            int[] dx = {x, y, -x, -y, -x, -y, x, y};
+            int[] dy = {y, x, y, x, -y, -x, -y, -x};
+            for (int i = 0; i < 8; i++) drawStyledPixel(g, dx[i], dy[i], count++);
+            if (d < 0)
+                d += 4 * x + 6;
+            else {
+                d += 4 * (x - y) + 10;
+                y--;
+            }
+            x++;
+        }
+    }
+
+    private void drawMidpointCircle(Graphics g) {
+        int x = 0, y = r;
+        int p = 1 - r;
+        int count = 0;
+
+        while (x <= y) {
+            int[] dx = {x, y, -x, -y, -x, -y, x, y};
+            int[] dy = {y, x, y, x, -y, -x, -y, -x};
+            for (int i = 0; i < 8; i++) drawStyledPixel(g, dx[i], dy[i], count++);
+            x++;
+            if (p < 0)
+                p += 2 * x + 1;
+            else {
+                y--;
+                p += 2 * (x - y) + 1;
+            }
+        }
+    }
+
+    @Override
+    protected void paintComponent(Graphics g) {
+        super.paintComponent(g);
+        switch (choice) {
+            case 1 -> drawDDACircle(g);
+            case 2 -> drawBresenhamCircle(g);
+            case 3 -> drawMidpointCircle(g);
+            default -> System.out.println("Invalid choice!");
+        }
+    }
+
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        int choice, style, xc, yc, r;
+
+        do {
+            System.out.println("\n===== Circle Drawing Algorithms =====");
+            System.out.println("1. DDA Circle");
+            System.out.println("2. Bresenham’s Circle");
+            System.out.println("3. Midpoint Circle");
+            System.out.println("4. Exit");
+            System.out.print("Enter choice: ");
+            choice = sc.nextInt();
+
+            if (choice == 4) break;
+
+            System.out.print("Enter center (xc, yc): ");
+            xc = sc.nextInt();
+            yc = sc.nextInt();
+            System.out.print("Enter radius: ");
+            r = sc.nextInt();
+
+            System.out.println("\nSelect style:");
+            System.out.println("1. Solid");
+            System.out.println("2. Dotted");
+            System.out.println("3. Dashed");
+            System.out.print("Enter style: ");
+            style = sc.nextInt();
+
+            JFrame frame = new JFrame("Circle Drawing");
+            CircleDrawing panel = new CircleDrawing(xc, yc, r, style, choice);
+            frame.add(panel);
+            frame.setSize(800, 600);
+            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+            frame.setVisible(true);
+
+            System.out.println("Press Enter to continue...");
+            sc.nextLine(); // consume newline
+            sc.nextLine(); // wait for Enter
+
+            frame.dispose();
+        } while (choice != 4);
+    }
+}

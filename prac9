@@ -1,0 +1,156 @@
+import java.awt.*;
+import java.awt.event.*;
+import javax.swing.*;
+
+public class CohenSutherland extends JPanel implements ActionListener {
+    // Define region codes
+    final int INSIDE = 0; // 0000
+    final int LEFT = 1;   // 0001
+    final int RIGHT = 2;  // 0010
+    final int BOTTOM = 4; // 0100
+    final int TOP = 8;    // 1000
+
+    // Clipping window boundaries
+    int x_min = 100, y_min = 100, x_max = 400, y_max = 300;
+
+    // Line endpoints
+    int x1 = 50, y1 = 250, x2 = 450, y2 = 150;
+
+    JButton clipBtn, resetBtn;
+
+    boolean clipped = false;
+
+    public CohenSutherland() {
+        setLayout(new FlowLayout());
+        clipBtn = new JButton("Clip Line");
+        resetBtn = new JButton("Reset");
+        add(clipBtn);
+        add(resetBtn);
+
+        clipBtn.addActionListener(this);
+        resetBtn.addActionListener(this);
+    }
+
+    // Compute the region code for a point (x, y)
+    int computeCode(int x, int y) {
+        int code = INSIDE;
+
+        if (x < x_min)
+            code |= LEFT;
+        else if (x > x_max)
+            code |= RIGHT;
+        if (y < y_min)
+            code |= TOP; // In Java coordinate system, top is smaller y
+        else if (y > y_max)
+            code |= BOTTOM;
+
+        return code;
+    }
+
+    // Cohen–Sutherland Line Clipping Algorithm
+    void cohenSutherlandClip(Graphics g) {
+        int code1 = computeCode(x1, y1);
+        int code2 = computeCode(x2, y2);
+
+        boolean accept = false;
+
+        int x1c = x1, y1c = y1, x2c = x2, y2c = y2;
+
+        while (true) {
+            if ((code1 | code2) == 0) { // Both points inside
+                accept = true;
+                break;
+            } else if ((code1 & code2) != 0) { // Both outside, same region
+                break;
+            } else {
+                int code_out;
+                int x = 0, y = 0;
+
+                // Pick an outside point
+                if (code1 != 0)
+                    code_out = code1;
+                else
+                    code_out = code2;
+
+                // Find intersection
+                if ((code_out & TOP) != 0) {
+                    x = x1c + (x2c - x1c) * (y_min - y1c) / (y2c - y1c);
+                    y = y_min;
+                } else if ((code_out & BOTTOM) != 0) {
+                    x = x1c + (x2c - x1c) * (y_max - y1c) / (y2c - y1c);
+                    y = y_max;
+                } else if ((code_out & RIGHT) != 0) {
+                    y = y1c + (y2c - y1c) * (x_max - x1c) / (x2c - x1c);
+                    x = x_max;
+                } else if ((code_out & LEFT) != 0) {
+                    y = y1c + (y2c - y1c) * (x_min - x1c) / (x2c - x1c);
+                    x = x_min;
+                }
+
+                // Replace outside point with intersection
+                if (code_out == code1) {
+                    x1c = x;
+                    y1c = y;
+                    code1 = computeCode(x1c, y1c);
+                } else {
+                    x2c = x;
+                    y2c = y;
+                    code2 = computeCode(x2c, y2c);
+                }
+            }
+        }
+
+        // Draw clipped line
+        g.setColor(Color.RED);
+        if (accept) {
+            g.drawLine(x1c, y1c, x2c, y2c);
+            g.setColor(Color.GREEN);
+            g.drawString("Line accepted & clipped", 150, 350);
+        } else {
+            g.setColor(Color.ORANGE);
+            g.drawString("Line rejected (outside window)", 150, 350);
+        }
+    }
+
+    // Draw the clipping window and line
+    public void paintComponent(Graphics g) {
+        super.paintComponent(g);
+
+        // Draw clipping rectangle
+        g.setColor(Color.BLACK);
+        g.drawRect(x_min, y_min, x_max - x_min, y_max - y_min);
+
+        // Draw original line
+        if (!clipped) {
+            g.setColor(Color.BLUE);
+            g.drawLine(x1, y1, x2, y2);
+            g.setColor(Color.BLACK);
+            g.drawString("Original Line (Blue)", 150, 320);
+        } else {
+            // Draw both original (dashed) and clipped
+            g.setColor(Color.LIGHT_GRAY);
+            g.drawLine(x1, y1, x2, y2);
+            cohenSutherlandClip(g);
+        }
+    }
+
+    public void actionPerformed(ActionEvent e) {
+        if (e.getSource() == clipBtn) {
+            clipped = true;
+            repaint();
+        } else if (e.getSource() == resetBtn) {
+            clipped = false;
+            repaint();
+        }
+    }
+
+    // Main Function
+    public static void main(String[] args) {
+        JFrame f = new JFrame("Cohen–Sutherland Line Clipping");
+        CohenSutherland panel = new CohenSutherland();
+        f.add(panel);
+        f.setSize(600, 450);
+        f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        f.setVisible(true);
+    }
+}

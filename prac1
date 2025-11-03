@@ -1,0 +1,92 @@
+practical 1 calculator
+
+package calculator;
+import java.util.Scanner;
+
+public class cal
+
+{
+	int num1,num2;
+	float result;
+   float add(int a,int b)
+{
+	result=a+b;
+	return result;
+}
+   
+   float sub(int a,int b)
+   {
+   	result=a-b;
+   	return result;
+   }
+   
+   float mul(int a,int b)
+   {
+   	result=a*b;
+   	return result;
+   }
+   
+   float div(int a,int b)
+   {
+   	result=a/b;
+   	return result;
+   }
+   
+   public static void main(String args[]) {
+	   int no1,no2;
+	   int ch;
+	   float ans;
+	   Scanner sc = new Scanner(System.in);
+	   System.out.println("Enter number 1:");
+	   no1 = sc.nextInt();
+	   
+	   System.out.println("Enter number 2:");
+	   no2 = sc.nextInt();
+	   
+	   System.out.println("Enter your choice:");
+	   System.out.println("1.add\n 2.sub\n 3.mul\n 4.div\n:");
+	   
+	   
+	   ch=sc.nextInt();
+	   cal c = new cal();
+	   
+	   switch(ch)
+	   {
+	      case 1:
+	    	  ans = c.add(no1,no2);
+	    	  System.out.println("Answer = " + ans);
+	    	  break;
+	    	  
+	      case 2:
+	    	  ans = c.sub(no1,no2);
+	    	  System.out.println("Answer = " + ans);
+	    	  break;
+	    	  
+	      case 3:
+	    	  ans = c.mul(no1,no2);
+	    	  System.out.println("Answer = " + ans);
+	    	  break;
+	    	  
+	      case 4:
+	    	  ans = c.div(no1,no2);
+	    	  System.out.println("Answer = " + ans);
+	    	  break;
+	    	  
+   }
+}
+
+}
+
+Output:
+Enter number 1:
+1
+Enter number 2:
+2
+Enter your choice:
+1.add
+ 2.sub
+ 3.mul
+ 4.div
+:
+1
+Answer = 3.0

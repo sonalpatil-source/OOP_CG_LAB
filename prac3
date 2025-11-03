@@ -1,0 +1,105 @@
+import java.util.Scanner;
+public class BankAccount {
+	private static int accountCounter = 1000;
+	private int accountNumber;
+	private String accountHolderName;
+	private static String password;
+	private double balance;
+	
+		BankAccount(String name, String password){
+		this.accountHolderName = name;
+		this.password = password;
+		this.accountNumber = accountCounter++;
+		this.balance = 0.0;
+	}
+	public int getaccountNumber() {
+		return(accountNumber);
+	}
+	public boolean checkPassword(String inputPassword) {
+		return this.password.equals(inputPassword);
+	}
+	public void deposit(double amount) {
+		if(amount>0) {
+			balance +=amount;
+			System.out.println(+amount+"deposited successfully");
+			
+		}
+		else {
+			System.out.println("invalid deposit amount");
+		}
+	}
+		public void withdraw(double amount, String inputPassword) {
+			if(!checkPassword(inputPassword)) {
+				System.out.println("incorrect password");
+				return;
+			}
+			if (amount>0 && amount<= balance) {
+				balance -= amount;
+				System.out.println(+amount+"withdraw successfull");
+			}
+			else {
+				System.out.println("invalid wihdrawal amount");
+			}
+		}
+		public void viewDetails(String inputPassword) {
+			if(checkPassword(inputPassword)) {
+				System.out.println("\n Account details");
+				System.out.println("accountholder"+accountHolderName);
+				System.out.println("account number"+accountNumber);
+				System.out.println("Balance"+balance);
+			}
+			else {
+				System.out.println("access denied, incorrect password");
+			}
+		}
+		public static void main(String[] args)
+		{
+			Scanner scanner = new Scanner(System.in);
+			System.out.println("enter your name");
+			String name = scanner.nextLine();
+			BankAccount account = new BankAccount(name, password);
+			System.out.println("account created successfully");
+			while(true)
+			{
+				System.out.println("Menu");
+				System.out.println("1.deposit");
+				System.out.println("withdraw");
+				System.out.println("view bank account details");
+				System.out.println("exit");
+				System.out.println("choose an option");
+				
+				int choice = scanner.nextInt();
+				scanner.nextLine();
+				
+				switch (choice){
+				case 1:
+					System.out.println("enter amount to deposit");
+					double depositAmt=scanner.nextDouble();
+					account.deposit(depositAmt);
+					break;
+				case 2:
+					System.out.println("enter amount to withdraw");
+					double withdrawAmt= scanner.nextDouble();
+					scanner.nextLine();
+					System.out.println("enter password");
+					String wPassword= scanner.nextLine();
+					account.withdraw(withdrawAmt, wPassword);
+					break;
+				case 3:
+					System.out.println("enter password to view account details");
+					String vPassword = scanner.nextLine();
+					account.viewDetails(vPassword);
+					break;
+				case 4:
+					System.out.println("thx for using banking system");
+					scanner.close();
+					
+					return;
+					default:System.out.println("invalid option try again ");
+				}
+			}
+		}
+		
+	}
+    }
+}

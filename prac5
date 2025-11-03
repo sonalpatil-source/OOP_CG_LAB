@@ -1,0 +1,100 @@
+class ChatUser extends Thread {
+    private String userName;
+    private boolean paused = false;
+    private boolean running = true;
+
+    ChatUser(String name) {
+        this.userName = name;
+    }
+
+    // Simulate sending and receiving messages
+    public void run() {
+        try {
+            for (int i = 1; i <= 5 && running; i++) {
+                synchronized (this) {
+                    while (paused) {
+                        wait(); // wait if paused
+                    }
+                }
+
+                System.out.println(userName + " says: Message " + i);
+                Thread.sleep(800);
+            }
+            System.out.println(userName + " has finished chatting.\n");
+        } catch (InterruptedException e) {
+            System.out.println(userName + " was interrupted.");
+        }
+    }
+
+    // Simulated suspend
+    public synchronized void pauseThread() {
+        paused = true;
+        System.out.println(userName + " has paused.");
+    }
+
+    // Simulated resume
+    public synchronized void resumeThread() {
+        paused = false;
+        notify();
+        System.out.println(userName + " has resumed.");
+    }
+
+    // Simulated stop
+    public void stopThread() {
+        running = false;
+        System.out.println(userName + " has left the chat.");
+    }
+}
+
+public class ChatSimulation {
+    public static void main(String[] args) {
+        System.out.println("===== MULTI-THREADED CHAT SIMULATION =====\n");
+
+        ChatUser user1 = new ChatUser("Alice");
+        ChatUser user2 = new ChatUser("Bob");
+        ChatUser user3 = new ChatUser("Charlie");
+
+        // Set thread priorities
+        user1.setPriority(Thread.NORM_PRIORITY);
+        user2.setPriority(Thread.MAX_PRIORITY); // high-priority user
+        user3.setPriority(Thread.MIN_PRIORITY);
+
+        // Start threads
+        user1.start();
+        user2.start();
+        user3.start();
+
+        // Check thread status
+        System.out.println("Checking thread statuses...");
+        System.out.println("Alice alive? " + user1.isAlive());
+        System.out.println("Bob alive? " + user2.isAlive());
+        System.out.println("Charlie alive? " + user3.isAlive());
+
+        try {
+            // Pause and resume a thread
+            Thread.sleep(2000);
+            user2.pauseThread();
+
+            Thread.sleep(2000);
+            user2.resumeThread();
+
+            // Stop a thread
+            Thread.sleep(2500);
+            user3.stopThread();
+
+            // Wait for all threads to finish (synchronization)
+            user1.join();
+            user2.join();
+            user3.join();
+
+        } catch (InterruptedException e) {
+            System.out.println("Main thread interrupted.");
+        }
+
+        // Final thread status
+        System.out.println("\nFinal Status:");
+        System.out.println("Alice alive? " + user1.isAlive());
+        System.out.println("Bob alive? " + user2.isAlive());
+        System.out.println("Charlie alive? " + user3.isAlive());
+
+        System.
